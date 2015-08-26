@@ -6,3 +6,8 @@
 #
 # All rights reserved - Do Not Redistribute
 #
+
+case node['h2o']['install_method']
+when 'source' then
+  include_recipe 'h2o::source'
+end
