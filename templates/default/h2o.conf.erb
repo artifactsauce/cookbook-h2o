@@ -1,0 +1,11 @@
+listen:
+  port: 80
+user: nobody
+hosts:
+  "*":
+    paths:
+      /:
+        file.dir: <%= @source_path %>/examples/doc_root
+access-log: <%= @log_dir %>/access.log
+error-log: <%= @log_dir %>/error.log
+pid-file: <%= @run_dir %>/h2o.pid
