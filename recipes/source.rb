@@ -16,11 +16,11 @@ extension     = node['h2o']['source']['extension']
 prefix        = node['h2o']['source']['prefix']
 source_prefix = "#{prefix}/src"
 binary_prefix = "#{prefix}/bin"
-etc_prefix    = "#{prefix}/etc"
-etc_dir       = "#{etc_prefix}/h2o"
-log_dir       = '/var/log/h2o'
-run_dir       = '/var/run'
 binary_path   = "#{binary_prefix}/h2o"
+
+etc_dir       = node['h2o']['etc_dir']
+log_dir       = node['h2o']['log_dir']
+run_dir       = node['h2o']['run_dir']
 
 url = "#{node['h2o']['source']['url_base']}/v#{version}.#{extension}"
 
@@ -47,7 +47,7 @@ bash 'build-and-install' do
   not_if { ::File.exists?("#{binary_path}") }
 end
 
-directory 'config-directory' do
+directory 'create-config-directory' do
   path etc_dir
   owner 'root'
   group 'root'
@@ -84,12 +84,23 @@ template 'init-daemon-file' do
   source "upstart.erb"
   variables (
     {
-      description:        node['h2o']['source']['upstart']['description'],
-      author_name:        node['h2o']['source']['upstart']['author_name'],
-      author_email:       node['h2o']['source']['upstart']['author_email'],
       binary_path:        "#{binary_path}",
       configuration_path: "#{etc_dir}/h2o.conf",
     }
   )
   action :create
+end
+
+directory 'create-certification-directory' do
+  path "#{etc_dir}/ssl"
+  mode '0600'
+end
+
+execute 'create-certifications' do
+  cwd "#{etc_dir}/ssl"
+  command "sudo openssl req -new -x509 -sha256 -days 365 -newkey rsa:2048 -nodes -subj \"/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com\" -out server.crt -keyout server.key"
+  only_if {
+    node['h2o']['source']['default_enabled'] ||
+      !::File.exists?("#{etc_dir}/ssl/server.key")
+  }
 end
