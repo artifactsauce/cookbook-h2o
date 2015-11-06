@@ -6,6 +6,7 @@ default['h2o']['source']['prefix'] = '/usr/local'
 default['h2o']['source']['default_enabled'] = true
 
 default['h2o']['etc_dir'] = '/etc/h2o'
+default['h2o']['ssl_dir'] = '/etc/h2o/ssl'
 default['h2o']['log_dir'] = '/var/log/h2o'
 default['h2o']['run_dir'] = '/var/run'
 
