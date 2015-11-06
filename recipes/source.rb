@@ -54,7 +54,10 @@ bash 'build-and-install' do
     (cd h2o-#{version} && #{cmake_cmd})
     (cd h2o-#{version} && make && make install)
   EOF
-  not_if { ::File.exists?("#{binary_path}") }
+  not_if {
+    ::File.exists?("#{binary_path}") &&
+      /h2o version #{version}/.match(`#{binary_path} --version`)
+  }
 end
 
 directory 'create-config-directory' do
