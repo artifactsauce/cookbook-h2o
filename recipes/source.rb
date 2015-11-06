@@ -24,6 +24,16 @@ run_dir       = node['h2o']['run_dir']
 
 url = "#{node['h2o']['source']['url_base']}/v#{version}.#{extension}"
 
+cmake_options = []
+if node['h2o']['source']['enabled_modules']['mruby'] then
+  cmake_options << '-DWITH_MRUBY=on'
+end
+if node['h2o']['source']['enabled_modules']['ssl'] then
+  cmake_options << '-DWITH_BUNDLED_SSL=on'
+end
+
+cmake_cmd = cmake_options.unshift('cmake').push('.').join(' ')
+
 case node['h2o']['source']['extension']
 when 'tar.gz' then
   extract_cmd = 'tar zxf'
@@ -41,7 +51,7 @@ bash 'build-and-install' do
   cwd source_prefix
   code <<-EOF
     #{extract_cmd} h2o-#{version}.#{extension}
-    (cd h2o-#{version} && cmake -DWITH_BUNDLED_SSL=on .)
+    (cd h2o-#{version} && #{cmake_cmd})
     (cd h2o-#{version} && make && make install)
   EOF
   not_if { ::File.exists?("#{binary_path}") }
