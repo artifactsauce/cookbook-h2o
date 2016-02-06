@@ -1,8 +1,0 @@
-description "An optimized HTTP server"
-author  "Kenji Akiyama <artifactsauce@gmail.com>"
-
-start on runlevel [2345]
-stop on runlevel [!2345]
-
-exec <%= @binary_path %> -m daemon -c <%= @configuration_path %>
-respawn

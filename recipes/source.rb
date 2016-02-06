@@ -93,15 +93,21 @@ directory 'create-log-directory' do
 end
 
 template 'init-daemon-file' do
-  path "/etc/init/h2o.conf"
-  source "upstart.erb"
+  path "/etc/init.d/h2o"
+  source "initd.erb"
+  mode '0755'
   variables (
     {
       binary_path:        "#{binary_path}",
       configuration_path: "#{etc_dir}/h2o.conf",
+      pid_path: "#{run_dir}/h2o.pid",
     }
   )
   action :create
+end
+
+execute 'update-rc.d' do
+  command "/usr/sbin/update-rc.d h2o defaults"
 end
 
 directory 'create-certification-directory' do
